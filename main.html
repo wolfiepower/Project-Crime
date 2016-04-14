@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
-	<head>
+<!-- saved from url=(0087)file:///C:/Users/sofer183/Downloads/Project-Crime-kamera/Project-Crime-kamera/main.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>Project Crime</title>
-		<meta charset="utf-8">
+		
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	</head>
 	<body>
 
-		<div id="container"></div>
+		<div id="container"><canvas width="944" height="1071" style="width: 944px; height: 1071px;"></canvas></div>
 		
 				<!-- <script src="three.min.js"></script> -->
-		<script src="three.js"></script>
+		<script src="./Project Crime_files/three.js"></script>
 		<script>
 		
 		var container;
@@ -19,7 +19,6 @@
 		var mouseX = 0, mouseY = 0;
 		var windowHalfX = window.innerWidth / 2;
 		var windowHalfY = window.innerHeight / 2;
-
 		// Object3D ("Group") nodes and Mesh nodes
 		var sceneRoot = new THREE.Group();		
 		var objectTranslation = new THREE.Group();
@@ -30,26 +29,23 @@
 		function onWindowResize() {
 			windowHalfX = window.innerWidth / 2;
 			windowHalfY = window.innerHeight / 2;
-
 			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
-
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			}
 			
 		function init() {
 		
 			container = document.getElementById( 'container' );
-
 			camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
 			camera.position.z = 10;
 	
-
 			scene = new THREE.Scene();
 			
 			// Mesh
-			var geometry = new THREE.PlaneGeometry( 20, 0.1, 20);
+			var geometry = new THREE.PlaneGeometry( 20, 4, 4);
 			var material = new THREE.MeshBasicMaterial( );
+			material.wireframe = true;
 			plane = new THREE.Mesh( geometry, material );
 			
 			
@@ -70,14 +66,13 @@
 			renderer.setPixelRatio( window.devicePixelRatio );
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			container.appendChild( renderer.domElement );
-
 			window.addEventListener( 'resize', onWindowResize, false );
 		}
 		
 		function render() {			
 			// Set up the camera
 			camera.position.x = 0;
-			camera.position.y = -mouseY*10;
+			camera.position.y += 0.015;
 			camera.lookAt( scene.position );
 			
 			delta = clock.getDelta();
@@ -97,5 +92,6 @@
 		animate(); // Enter an infinite loop
 			
 		</script>
-		</body>
+		
+</body>
 </html>
