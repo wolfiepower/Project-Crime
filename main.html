@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<!-- saved from url=(0087)file:///C:/Users/sofer183/Downloads/Project-Crime-kamera/Project-Crime-kamera/main.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="en">
+	<head>
 		<title>Project Crime</title>
-		
+		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	</head>
 	<body>
 
-		<div id="container"><canvas width="944" height="1071" style="width: 944px; height: 1071px;"></canvas></div>
+		<div id="container"></div>
 		
 				<!-- <script src="three.min.js"></script> -->
-		<script src="./Project Crime_files/three.js"></script>
+		<script src="three.js"></script>
 		<script>
+		
+		var pi = 3.1415
 		
 		var container;
 		var camera, scene, renderer;
@@ -19,9 +21,11 @@
 		var mouseX = 0, mouseY = 0;
 		var windowHalfX = window.innerWidth / 2;
 		var windowHalfY = window.innerHeight / 2;
+
 		// Object3D ("Group") nodes and Mesh nodes
 		var sceneRoot = new THREE.Group();		
-		var objectTranslation = new THREE.Group();
+		var planeTranslation = new THREE.Group();
+		var planeRotation = new THREE.Group();
 		var objectMesh;
 		var plane;
 			
@@ -29,22 +33,26 @@
 		function onWindowResize() {
 			windowHalfX = window.innerWidth / 2;
 			windowHalfY = window.innerHeight / 2;
+
 			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
+
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			}
 			
 		function init() {
 		
 			container = document.getElementById( 'container' );
+
 			camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
 			camera.position.z = 10;
 	
+
 			scene = new THREE.Scene();
 			
 			// Mesh
-			var geometry = new THREE.PlaneGeometry( 20, 4, 4);
-			var material = new THREE.MeshBasicMaterial( );
+			var geometry = new THREE.PlaneGeometry( 10, 10, 20);
+			var material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
 			material.wireframe = true;
 			plane = new THREE.Mesh( geometry, material );
 			
@@ -58,26 +66,29 @@
 			scene.add( sceneRoot );
 			
 			sceneRoot.add(objectMesh);
-			sceneRoot.add(objectTranslation);
-			objectTranslation.add(plane);
+			sceneRoot.add(planeRotation);
+			planeRotation.add(planeTranslation);
+			planeTranslation.add(plane);
 			
 			renderer = new THREE.WebGLRenderer();
 			renderer.setClearColor( 0x000000 );
 			renderer.setPixelRatio( window.devicePixelRatio );
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			container.appendChild( renderer.domElement );
+
 			window.addEventListener( 'resize', onWindowResize, false );
 		}
 		
 		function render() {			
 			// Set up the camera
 			camera.position.x = 0;
-			camera.position.y += 0.015;
+			camera.position.y = 0;
 			camera.lookAt( scene.position );
 			
 			delta = clock.getDelta();
 			
-			objectTranslation.position.y = -1.2;
+			planeTranslation.position.z = 1;
+			planeRotation.rotation.x = pi/2;
 			
 			// Render the scene
 			renderer.render( scene, camera );
@@ -92,6 +103,5 @@
 		animate(); // Enter an infinite loop
 			
 		</script>
-		
-</body>
+		</body>
 </html>
