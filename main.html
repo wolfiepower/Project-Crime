@@ -28,6 +28,9 @@
 			var planeRotation = new THREE.Group();
 			var objectMesh;
 			var plane;
+			
+			document.addEventListener( 'mousemove', onDocumentMouseMove, false ); //skickar till funktion onDocumentMouseMove
+
 				
 			
 			function onWindowResize() {
@@ -46,6 +49,7 @@
 	
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100);
 				camera.position.z = 10;
+				camera.focalLength = 3; //seeing range
 		
 				scene = new THREE.Scene();
 				
@@ -77,10 +81,19 @@
 				window.addEventListener( 'resize', onWindowResize, false );
 			}
 			
+			function onDocumentMouseMove(event) {  //Funktion
+  
+ 				mouseX = ( event.clientX - window.innerWidth/2 ) / 100; 
+ 				mouseY = ( event.clientY - window.innerHeight/2 ) / 100; 
+  
+ 			}
+			
 			function render() {			
 				// Set up the camera
-				camera.position.x = 0;
-				camera.position.y = 0;
+				camera.position.x += (mouseX - camera.rotation.x)*0.05;
+				camera.position.z -= ( - mouseY - camera.rotation.y )*0.05;
+				
+				
 				camera.lookAt( scene.position );
 				
 				delta = clock.getDelta();
