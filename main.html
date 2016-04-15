@@ -28,9 +28,10 @@
 			var planeRotation = new THREE.Group();
 			var objectMesh;
 			var plane;
+
 			
 			document.addEventListener( 'mousemove', onDocumentMouseMove, false ); //skickar till funktion onDocumentMouseMove
-
+			
 				
 			
 			function onWindowResize() {
@@ -81,20 +82,21 @@
 				window.addEventListener( 'resize', onWindowResize, false );
 			}
 			
-			function onDocumentMouseMove(event) {  //Funktion
+			function onDocumentMouseMove(event) {  //ÄR OSÄKER PÅ VAD SOM HÄNDERS
   
  				mouseX = ( event.clientX - window.innerWidth/2 ) / 100; 
  				mouseY = ( event.clientY - window.innerHeight/2 ) / 100; 
   
- 			}
+ 			} 
+
 			
-			function render() {			
+			function render() {	
+								
 				// Set up the camera
 				camera.position.x += (mouseX - camera.rotation.x)*0.05;
 				camera.position.z -= ( - mouseY - camera.rotation.y )*0.05;
 				
-				
-				camera.lookAt( scene.position );
+				camera.lookAt( camera.position );
 				
 				delta = clock.getDelta();
 				
