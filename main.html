@@ -29,7 +29,16 @@
 			var lightTrans = new THREE.Group();
 			var objectMesh;
 			var plane;
-
+			var TableGeometry;
+			var TableMesh;
+			var TableMaterial;
+			var logo; 
+			var asalogo; 
+			var object; 
+			
+			
+			//var ModelLoader = new THREE.JSONLoader();
+			var ModelLoader; 
 			
 			document.addEventListener( 'mousemove', onDocumentMouseMove, false ); //skickar till funktion onDocumentMouseMove
 			
@@ -55,12 +64,11 @@
 		
 				scene = new THREE.Scene();
 				
-				//Ljus
 				var sphere = new THREE.SphereGeometry( 0.5, 16, 8 );
 				var light1 = new THREE.PointLight( 0xff0040, 2, 50 );
 				light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
 				
-				//Texturen till golvet
+				
 				var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/Project%20Crime/golv.jpg', {}, function(){ renderer.render(scene, camera); } ); 
 				texture.wrapS = THREE.RepeatWrapping; 
 				texture.wrapT = THREE.RepeatWrapping;
@@ -80,9 +88,59 @@
 				materialBox.wireframe = true;
 				objectMesh = new THREE.Mesh( geometryBox, materialBox );
 				
+				//Bord
+				/*
+				ModelLoader.load('table.json', function(TableGeometry,TableMaterial){
+					TableMaterial = new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('golv.jpg')});
+					
+					TableMesh = new THREE.Mesh(TableGeometry, TableMaterial);
+				});
+				
+				
+					loader = new THREE.JSONLoader();
+					var mesh;
+					loader.load('table.json', function (geometry, materials) {
+					  var Tablematerial = new THREE.MeshLambertMaterial({
+						map: THREE.ImageUtils.loadTexture('golv.jpg'),   
+						colorAmbient: [0.480000026226044, 0.480000026226044, 0.480000026226044],
+						colorDiffuse: [0.480000026226044, 0.480000026226044, 0.480000026226044],
+						colorSpecular: [0.8999999761581421, 0.8999999761581421, 0.8999999761581421]
+					  });
+					  
+					  mesh = new THREE.Mesh(
+						geometry,
+						Tablematerial
+					  );
+					  scene.add(mesh);
+					  });
+					  
+					  
+					ModelLoader = new THREE.JSONLoader();
+					logo= function (object) {
+						asalogo = new THREE.Mesh(
+						object, new THREE.MeshLambertMaterial({color:"blue", wireframe:false})
+						);
+						
+						asalogo.position.set(0,0,0);
+						asaologo.scale.set(3,3,3); 
+						scene.add(asalogo);
+						renderer.render(scene,camera); 
+						}
+						ModelLoader.load("table.js",logo);
+						*/
+	  
+					var loader = new THREE.JSONLoader();
+					
+					loader.load( 'toothpaste.json', function ( TableGeometry, TableMaterials ) 
+					{
+					TableMesh = new THREE.Mesh( TableGeometry, new THREE.MeshFaceMaterial( TableMaterials ) );
+					//scene.add( mesh );
+					});
+					  
+					  
 				//"Scen graf"
 				scene.add(sceneRoot);
-				sceneRoot.add(objectMesh);
+				sceneRoot.add(TableMesh);
 				sceneRoot.add(planeRotation);
 				sceneRoot.add(lightTrans);
 				lightTrans.add(light1);
