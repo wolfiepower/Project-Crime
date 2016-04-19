@@ -55,6 +55,17 @@
 		
 				scene = new THREE.Scene();
 				
+				//Ljus
+				var sphere = new THREE.SphereGeometry( 0.5, 16, 8 );
+				var light1 = new THREE.PointLight( 0xff0040, 2, 50 );
+				light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
+				
+				//Texturen till golvet
+				var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/Project%20Crime/golv.jpg', {}, function(){ renderer.render(scene, camera); } ); 
+				texture.wrapS = THREE.RepeatWrapping; 
+				texture.wrapT = THREE.RepeatWrapping;
+				texture.repeat.set( 4, 4 );
+				
 				// Golvet
 				var geometry = new THREE.PlaneGeometry( 100, 100, 20);
 				var material = new THREE.MeshPhongMaterial({map: texture});
