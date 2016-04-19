@@ -11,14 +11,16 @@
 		
 		<!-- <script src="three.min.js"></script> -->
 		<script src="three.js"></script>
+		<script src="FirstPersonControls.js"></script>
 		<script>
 		
 			var pi = 3.1415
 			
 			var container;
-			var camera, scene, renderer;
+			var camera, scene, renderer, controls;
 			var clock = new THREE.Clock(true);
 			var mouseX = 0, mouseY = 0;
+			//var up = 0, down = 0, left = 0, right = 0;
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 	
@@ -30,10 +32,9 @@
 			var plane;
 
 			
-			document.addEventListener( 'onkeydown', onDocumentKeyPress, false ); //skickar till funktion onDocumentMouseMove
+			//document.addEventListener( 'onkeydown', onDocumentKeyPress, false ); //skickar till funktion onDocumentMouseMove
 			
-				
-			
+	
 			function onWindowResize() {
 				windowHalfX = window.innerWidth / 2;
 				windowHalfY = window.innerHeight / 2;
@@ -44,14 +45,28 @@
 				renderer.setSize( window.innerWidth, window.innerHeight);
 				}
 				
+				init();    // Set up the scene
+			animate(); // Enter an infinite loop
+				
 			function init() {
+			
+			
+			
 			
 				container = document.getElementById('container');
 	
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100);
-				camera.position.z = 10;
-				camera.focalLength = 3; //seeing range
-		
+				camera.position.z = 5;
+				camera.focalLength = 5; //seeing range
+				camera.lookAt( new THREE.Vector3(0,0,0) );
+				
+				// Camera moves with mouse, flies around with WASD/arrow keys
+				controls = new THREE.FirstPersonControls(camera); // Handles camera control
+				controls.movementSpeed = 5.0; // How fast the player can walk around
+				controls.lookSpeed = 0.1; // How fast the player can look around with the mouse
+				controls.lookVertical = false; // Don't allow the player to look up or down. This is a temporary fix to keep people from flying
+				controls.noFly = true; // Don't allow hitting R or F to go up or down
+				
 				scene = new THREE.Scene();
 				
 				// Golvet
@@ -82,46 +97,53 @@
 				window.addEventListener( 'resize', onWindowResize, false );
 			}
 			
-			function onDocumentKeyPress(event) {  //ÄR OSÄKER PÅ VAD SOM HÄNDERS
+/*function onDocumentKeyPress(event) {  //ÄR OSÄKER PÅ VAD SOM HÄNDERS
   
  				//mouseX = ( event.clientX - window.innerWidth/2 ) / 100; 
  				//mouseY = ( event.clientY - window.innerHeight/2 ) / 100; 
-				
+				var delta = 200; 
 				event = event || window.event;
-				
-				if(event.keyCode == '38')
-				{
-					//up arrow
-				}
-				
-				if(event.keyCode == '40')
-				{
-					//down arrow
-				}
-				if(event.keyCode == '37')
-				{
-					//left arrow
-				}
-				
-				if(event.keyCode == '39')
-				{
-					//right arrow
-				}
- 			} 
+				var keycode = event.keyCode;
+				switch(keycode){
+					case 37 : //left arrow ????
+					left = camera.position.x - delta;
+					
+					break;
+					case 38 : // up arrow ???? 
+					up = camera.position.z - delta;
+					
+					break;
+					case 39 : // right arrow ????
+					right= camera.position.x + delta;
+					//camera.updateProjectionMatrix();
+					break;
+					case 40 : //down arrow????
+					down = camera.position.z + delta;
+					//camera.updateProjectionMatrix();
+					break;
+					}
+ 			} */
 
 			
 			function render() {	
 								
 				// Set up the camera
-				camera.position.x += (mouseX - camera.rotation.x)*0.05;
-				camera.position.z -= ( - mouseY - camera.rotation.y )*0.05;
+				//camera.position.x += (mouseX - camera.rotation.x)*0.05;
+				//camera.position.z -= ( - mouseY - camera.rotation.y )*0.05;
+				//camera.position.x = left;
+				//camera.updateProjectionMatrix();
+				//camera.position.z = up;
+				//camera.updateProjectionMatrix();
 				
-				camera.lookAt( camera.position );
-				
+				//camera.lookAt( camera.position );
+				//camera.rotation.y = Math.PI/2;
 				delta = clock.getDelta();
 				
 				planeTranslation.position.z = 1;
 				planeRotation.rotation.x = pi/2;
+				
+				
+				controls.update(delta); // Move camera
 				
 				// Render the scene
 				renderer.render(scene, camera);
@@ -132,8 +154,8 @@
 				render();
 			}
 			
-			init();    // Set up the scene
-			animate(); // Enter an infinite loop
+			//init();    // Set up the scene
+			//animate(); // Enter an infinite loop
 				
 		</script>
 		</body>
