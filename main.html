@@ -69,7 +69,7 @@
 				light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
 				
 				
-				var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/Project%20Crime/golv.jpg', {}, function(){ renderer.render(scene, camera); } ); 
+				var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/ProjectCrime/golv.jpg', {}, function(){ renderer.render(scene, camera); } ); 
 				texture.wrapS = THREE.RepeatWrapping; 
 				texture.wrapT = THREE.RepeatWrapping;
 				texture.repeat.set( 4, 4 );
@@ -88,54 +88,15 @@
 				materialBox.wireframe = true;
 				objectMesh = new THREE.Mesh( geometryBox, materialBox );
 				
-				//Bord
-				/*
-				ModelLoader.load('table.json', function(TableGeometry,TableMaterial){
-					TableMaterial = new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('golv.jpg')});
-					
-					TableMesh = new THREE.Mesh(TableGeometry, TableMaterial);
+				//-----------------------------------Bord------------------------------------------------------------------------
+				var loader = new THREE.ObjectLoader();
+				var geomtry;
+				//var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/ProjectCrime/product-sensitivity.png', {}, function(){ renderer.render(scene, camera); } ); 
+				var materials;
+				
+				loader.load('http://www.student.itn.liu.se/~ricfa399/ProjectCrime/table.json', function(object){				
+						scene.add(object);
 				});
-				
-				
-					loader = new THREE.JSONLoader();
-					var mesh;
-					loader.load('table.json', function (geometry, materials) {
-					  var Tablematerial = new THREE.MeshLambertMaterial({
-						map: THREE.ImageUtils.loadTexture('golv.jpg'),   
-						colorAmbient: [0.480000026226044, 0.480000026226044, 0.480000026226044],
-						colorDiffuse: [0.480000026226044, 0.480000026226044, 0.480000026226044],
-						colorSpecular: [0.8999999761581421, 0.8999999761581421, 0.8999999761581421]
-					  });
-					  
-					  mesh = new THREE.Mesh(
-						geometry,
-						Tablematerial
-					  );
-					  scene.add(mesh);
-					  });
-					  
-					  
-					ModelLoader = new THREE.JSONLoader();
-					logo= function (object) {
-						asalogo = new THREE.Mesh(
-						object, new THREE.MeshLambertMaterial({color:"blue", wireframe:false})
-						);
-						
-						asalogo.position.set(0,0,0);
-						asaologo.scale.set(3,3,3); 
-						scene.add(asalogo);
-						renderer.render(scene,camera); 
-						}
-						ModelLoader.load("table.js",logo);
-						*/
-	  
-					var loader = new THREE.JSONLoader();
-					
-					loader.load( 'toothpaste.json', function ( TableGeometry, TableMaterials ) 
-					{
-					TableMesh = new THREE.Mesh( TableGeometry, new THREE.MeshFaceMaterial( TableMaterials ) );
-					//scene.add( mesh );
-					});
 					  
 					  
 				//"Scen graf"
