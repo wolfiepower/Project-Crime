@@ -29,7 +29,16 @@
 			var lightTrans = new THREE.Group();
 			var objectMesh;
 			var plane;
-
+			var TableGeometry;
+			var TableMesh;
+			var TableMaterial;
+			var logo; 
+			var asalogo; 
+			var object; 
+			
+			
+			//var ModelLoader = new THREE.JSONLoader();
+			var ModelLoader; 
 			
 			document.addEventListener( 'mousemove', onDocumentMouseMove, false ); //skickar till funktion onDocumentMouseMove
 			
@@ -55,13 +64,12 @@
 		
 				scene = new THREE.Scene();
 				
-				//Ljus
 				var sphere = new THREE.SphereGeometry( 0.5, 16, 8 );
 				var light1 = new THREE.PointLight( 0xff0040, 2, 50 );
 				light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
 				
-				//Texturen till golvet
-				var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/Project%20Crime/golv.jpg', {}, function(){ renderer.render(scene, camera); } ); 
+				
+				var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/ProjectCrime/golv.jpg', {}, function(){ renderer.render(scene, camera); } ); 
 				texture.wrapS = THREE.RepeatWrapping; 
 				texture.wrapT = THREE.RepeatWrapping;
 				texture.repeat.set( 4, 4 );
@@ -80,9 +88,20 @@
 				materialBox.wireframe = true;
 				objectMesh = new THREE.Mesh( geometryBox, materialBox );
 				
+				//-----------------------------------Bord------------------------------------------------------------------------
+				var loader = new THREE.ObjectLoader();
+				var geomtry;
+				//var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/ProjectCrime/product-sensitivity.png', {}, function(){ renderer.render(scene, camera); } ); 
+				var materials;
+				
+				loader.load('http://www.student.itn.liu.se/~ricfa399/ProjectCrime/table.json', function(object){				
+						scene.add(object);
+				});
+					  
+					  
 				//"Scen graf"
 				scene.add(sceneRoot);
-				sceneRoot.add(objectMesh);
+				sceneRoot.add(TableMesh);
 				sceneRoot.add(planeRotation);
 				sceneRoot.add(lightTrans);
 				lightTrans.add(light1);
