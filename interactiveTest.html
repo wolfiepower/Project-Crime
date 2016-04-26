@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Three.js Planetary system</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	</head>
+	<body>
+
+		<div id="container"></div>
+
+		<script src="three.min.js"></script>
+		<script src="three.js"></script>
+		<script>
+			// Lots of global variables. (This is JavaScript. No use complaining.)
+			var container;
+			var camera, scene, renderer;
+			
+			var clock = new THREE.Clock(true);
+			
+			var mouseX = 0, mouseY = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;			
+			
+			// Object3D ("Group") nodes and Mesh nodes
+			var sceneRoot = new THREE.Group();
+			var objectMesh;
+			
+			var arr = [];
+
+			
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			
+			function init() {
+
+				container = document.getElementById( 'container' );
+
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 100 );
+				camera.position.z = 10;
+
+				scene = new THREE.Scene();
+								
+				// Mesh
+				var geometryBox = new THREE.BoxGeometry( 2, 2, 2 );
+				var materialBox = new THREE.MeshBasicMaterial({color: 'red'});
+				materialBox.wireframe = false;
+				objectMesh = new THREE.Mesh( geometryBox, materialBox );
+				
+				arr[0] = objectMesh;
+
+				// Top-level node
+				scene.add(sceneRoot);
+				sceneRoot.add(objectMesh);
+
+				raycaster = new THREE.Raycaster();
+				mouse = new THREE.Vector2();
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor( 0x000000 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+				
+				document.addEventListener('mousedown', onDocumentMouseDown, false);
+				window.addEventListener('resize', onWindowResize, false);
+			}
+			
+			function onDocumentMouseDown( event ) {
+				
+				console.log("funktionen körs");
+				event.preventDefault();
+
+				mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+				raycaster.setFromCamera( mouse, camera );
+
+				var intersects = raycaster.intersectObjects(arr);
+				
+				if ( intersects.length > 0 ) {
+					
+					console.log("Du har tryckt på cuben");
+					intersects[0].object.material.color.setHex(0xCCFFFF);
+				}
+
+			}
+
+			
+			function render() {			
+
+				// Set up the camera
+				camera.position.x = 0;
+				camera.position.y = -mouseY*10;
+				camera.lookAt( scene.position );
+				
+				delta = clock.getDelta();
+
+				// Render the scene
+				renderer.render( scene, camera );
+			}
+
+
+			function animate() {
+				requestAnimationFrame( animate ); // Request to be called again for next frame
+				render();
+			}
+
+			
+			init();    // Set up the scene
+			animate(); // Enter an infinite loop
+			
+		</script>
+	</body>
+</html>
