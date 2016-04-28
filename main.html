@@ -29,16 +29,10 @@
 			var lightTrans = new THREE.Group();
 			var objectMesh;
 			var plane;
-			var TableGeometry;
-			var TableMesh;
-			var TableMaterial;
-			var logo; 
-			var asalogo; 
-			var object; 
+			var table;
+			var tableHitbox;
 			
-			
-			//var ModelLoader = new THREE.JSONLoader();
-			var ModelLoader; 
+			var interactiveThings = [];
 			
 			document.addEventListener( 'mousemove', onDocumentMouseMove, false ); //skickar till funktion onDocumentMouseMove
 			
@@ -69,7 +63,7 @@
 				light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
 				
 				
-				var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/ProjectCrime/golv.jpg', {}, function(){ renderer.render(scene, camera); } ); 
+				var texture = THREE.ImageUtils.loadTexture( 'golv.jpg', {}, function(){ renderer.render(scene, camera); } ); 
 				texture.wrapS = THREE.RepeatWrapping; 
 				texture.wrapT = THREE.RepeatWrapping;
 				texture.repeat.set( 4, 4 );
@@ -90,18 +84,27 @@
 				
 				//-----------------------------------Bord------------------------------------------------------------------------
 				var loader = new THREE.ObjectLoader();
-				var geomtry;
-				//var texture = THREE.ImageUtils.loadTexture( 'http://www.student.itn.liu.se/~ricfa399/ProjectCrime/product-sensitivity.png', {}, function(){ renderer.render(scene, camera); } ); 
-				var materials;
 				
-				loader.load('http://www.student.itn.liu.se/~ricfa399/ProjectCrime/table.json', function(object){				
+				loader.load('table.json', function(object){	
+						table = object;
 						scene.add(object);
 				});
+				
+				//En osynlig box runt bordet, för att göra det interaktivt
+				var tableHitboxGeom = new THREE.BoxGeometry( 2, 1, 1 );
+				tableHitboxGeom.name = "table";
+				var tableHitboxMat = new THREE.MeshBasicMaterial( { transparent: false, opacity: 0 , wireframe: true} )
+				tableHitbox = new THREE.Mesh(tableHitboxGeom, tableHitboxMat);
+				scene.add(tableHitbox);
+				
+				interactiveThings[0] = tableHitbox;
+				
+				raycaster = new THREE.Raycaster();
+				mouse = new THREE.Vector2();
 					  
 					  
 				//"Scen graf"
 				scene.add(sceneRoot);
-				sceneRoot.add(TableMesh);
 				sceneRoot.add(planeRotation);
 				sceneRoot.add(lightTrans);
 				lightTrans.add(light1);
@@ -113,7 +116,8 @@
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
-	
+				
+				document.addEventListener( 'mousedown', onDocumentMouseDown, false);
 				window.addEventListener( 'resize', onWindowResize, false );
 			}
 			
@@ -123,6 +127,30 @@
  				mouseY = ( event.clientY - window.innerHeight/2 ) / 100; 
   
  			} 
+			
+			function onDocumentMouseDown(event) {
+				
+				console.log("funktionen körs");
+				event.preventDefault();
+
+				mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+
+				raycaster.setFromCamera( mouse, camera );
+
+				var intersects = raycaster.intersectObjects(interactiveThings);
+				
+				if ( intersects.length > 0 ) {
+					
+					console.log("Du har tryckt på något som är interaktivt");
+					if(intersects[0].object.geometry.name == "table")
+					{
+						console.log("Du har tryckt på bordets hitbox!");
+						scene.remove(table);
+					}
+					
+				}
+			}
 
 			
 			function render() {	
