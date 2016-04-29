@@ -272,16 +272,20 @@
 				loader.load('table.json', function(object){	
 						object.scale.set(12,12,12);
 						object.position.set(1,6,1)
+						table = object;
 						scene.add(object);
 				});
 				
 				//En osynlig box runt bordet, för att göra det interaktivt
-				var tableHitboxGeom = new THREE.BoxGeometry( 2, 1, 1 );
+				var tableHitboxGeom = new THREE.BoxGeometry( 10, 5, 5 );
+				
 				//ge hitboxen ett namn så att man kan jämföra med den nere i mousedown funktionen
 				tableHitboxGeom.name = "table";
+				
 				//har transparent: false just nu för att man ska kunna se wireframen, ska sättas till true senare 
 				var tableHitboxMat = new THREE.MeshBasicMaterial( { transparent: false, opacity: 0 , wireframe: true} )
 				tableHitbox = new THREE.Mesh(tableHitboxGeom, tableHitboxMat);
+				
 				//ge den samma position som bordet, borde dock använda "scengrafen" istället, så att man enkelt kan göra
 				//alla translationer etc. för både objektet och dess hitbox
 				tableHitbox.position.set(1,6,1);
@@ -326,19 +330,22 @@
 				console.log("funktionen körs");
 				event.preventDefault();
 
-				//mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-				//mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
-
-				//raycaster.setFromCamera( mouse, camera );
-
+				//skjut en stråle från kamerans position i kamernas riktning
+				raycaster.setFromCamera( camera.position, camera );
+				
 				var intersects = raycaster.intersectObjects(interactiveThings);
 				
+				//Kollar om strålen har träffat något
 				if ( intersects.length > 0 ) {
 					
 					console.log("Du har tryckt på något som är interaktivt");
+					
+					//Kollar om det är objeketet som heter table
+					//i geometry finns en property som heter name, som är tom som default
 					if(intersects[0].object.geometry.name == "table")
 					{
 						console.log("Du har tryckt på bordets hitbox!");
+						//ta bort bordet
 						scene.remove(table);
 					}
 					
