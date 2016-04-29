@@ -80,14 +80,9 @@
 			var lightTrans = new THREE.Group();
 			var objectMesh;
 			var plane;
-			var TableGeometry;
-			var TableMaterial;
-			var object; 
-			
-			//var ModelLoader = new THREE.JSONLoader();
-			var ModelLoader; 
-			
-			
+			var table;
+			var tableHitbox;
+			var interactiveThings = [];
 			
 			//Check if browser supports pointer lock controls
 			var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
