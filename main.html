@@ -173,6 +173,10 @@
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 				scene = new THREE.Scene();
 				
+				cameraOrtho = new THREE.OrthographicCamera(-window.innerWidth/2 , window.innerWidth/2 , window.innerHeight/2 , -window.innerHeight/2  );
+				cameraOrtho.position.z = 10;
+				sceneOrtho = new THREE.Scene();
+				
 				
 				controls = new THREE.PointerLockControls( camera );
 				scene.add( controls.getObject() );
@@ -334,13 +338,13 @@
 				renderer.setClearColor( 0x000000 );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.autoClear = false;
+				
 				document.body.appendChild( renderer.domElement );
 				//
 				window.addEventListener( 'resize', onWindowResize, false );
 				//för den interaktiva funktionen
 				document.addEventListener( 'mousedown', onDocumentMouseDown, false);
-				
+				renderer.autoClear = false;
 				
 			}
 			
@@ -365,9 +369,9 @@
 				event.preventDefault();
 
 				//skjut en stråle från kamerans position i kamernas riktning
-				raycaster.setFromCamera( camera.position, camera );
+				rays.setFromCamera( camera.position, camera );
 				
-				var intersects = raycaster.intersectObjects(interactiveThings);
+				var intersects = rays.intersectObjects(interactiveThings);
 				
 				//Kollar om strålen har träffat något
 				if ( intersects.length > 0 ) {
@@ -444,6 +448,7 @@
 				
 				// Render the scene
 				renderer.render(scene, camera);
+				renderer.clearDepth();
 				renderer.render(sceneOrtho, cameraOrtho);
 			}
 			
