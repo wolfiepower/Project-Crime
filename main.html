@@ -64,6 +64,7 @@
 			var windowHalfY = window.innerHeight / 2;
 			
 			var camera, scene, renderer, container;
+			var cameraOrtho, sceneOrtho;
 			var geometry, material, mesh;
 			var controls;
 			var objects = [];
@@ -81,6 +82,7 @@
 			var lightTrans = new THREE.Group();
 			var objectMesh;
 			var plane;
+			var crosshair;
 			
 			//För det interaktiva
 			var table;
@@ -298,6 +300,21 @@
 				
 				interactiveThings[0] = tableHitbox;
 				
+				//---------------------------pekare---------------
+				var textureLoader = new THREE.TextureLoader();
+				textureLoader.load("crosshair.png", function(obj){
+				
+					var material = new THREE.SpriteMaterial({map: obj});
+					var width = material.map.image.width;
+					var height = material.map.image.height;
+					crosshair = new THREE.Sprite(material);
+					crosshair.scale.set(width, height, 1);
+					
+					sceneOrtho.add(crosshair);
+					
+					crosshair.position.set(0,0,1);
+				});
+				
 				//"Scen graf"
 				scene.add(sceneRoot);
 				sceneRoot.add(objectMesh);
@@ -317,17 +334,28 @@
 				renderer.setClearColor( 0x000000 );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.autoClear = false;
 				document.body.appendChild( renderer.domElement );
 				//
 				window.addEventListener( 'resize', onWindowResize, false );
 				//för den interaktiva funktionen
 				document.addEventListener( 'mousedown', onDocumentMouseDown, false);
+				
+				
 			}
 			
 			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				
+				cameraOrtho.left = -window.innerWidth/2;
+				cameraOrtho.right = window.innerWidth/2;
+				cameraOrtho.top = window.innerHeight/2;
+				cameraOrtho.bottom = -window.innerHeight/2;
+				cameraOrtho.updateProjectionMatrix();
+				
+				crosshair.position.set(0,0,1);
 			}
 			
 			//Interaktiva funtionen
@@ -416,6 +444,7 @@
 				
 				// Render the scene
 				renderer.render(scene, camera);
+				renderer.render(sceneOrtho, cameraOrtho);
 			}
 			
 			
