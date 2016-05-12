@@ -60,16 +60,16 @@
 			
 			var pi = 3.1415
 			var clock = new THREE.Clock(true);
-			var mouseX = 0, mouseY = 0;
+			//var mouseX = 0, mouseY = 0;
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 			
 			var camera, scene, renderer, container;
-			var cameraOrtho, sceneOrtho;
+			var cameraOrtho, sceneOrtho; //Skapar ny 2D-scen med ny kamera, endast pekare i denna scenen
 			var geometry, material, mesh;
 			var controls;
-			var objects = [];
-			var directions = [];
+			var objects = []; //integrerbara objekt
+			var directions = []; //alla strålar, 6 st
 			var rays;
 			var blocker = document.getElementById( 'blocker' );
 			var instructions = document.getElementById( 'instructions' );
@@ -77,10 +77,10 @@
 				// Object3D nodes and Mesh nodes
 			var sceneRoot = new THREE.Group();	
 			var Room = new THREE.Group();
-			var wallTranslate = new THREE.Group();
-			var wallRotation = new THREE.Group();
-			var planeTranslation = new THREE.Group();
-			var planeRotation = new THREE.Group();
+			//var wallTranslate = new THREE.Group();
+			//var wallRotation = new THREE.Group();
+			//var planeTranslation = new THREE.Group();
+			//svar planeRotation = new THREE.Group();
 			var lightTrans = new THREE.Group();
 			var objectMesh;
 			var floor;
@@ -92,7 +92,7 @@
 			//För det interaktiva
 			var table;
 			var tableHitbox;
-			var interactiveThings = [];
+			var interactiveThings = []; //Osynliga integrerbara boxar
 			
 			//Check if browser supports pointer lock controls
 			var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
@@ -119,9 +119,10 @@
 				};
 				//In case of error with pointer-lock-browser compability
 				var pointerlockerror = function ( event ) {
-					instructions.style.display = '';
+					instructions.style.display = 'Det funkar inte';
 				};
 				
+				//FRÅGA M
 				// Hook pointer lock state change events
 				document.addEventListener( 'pointerlockchange', pointerlockchange, false );
 				document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
@@ -137,6 +138,7 @@
 					// Ask the browser to lock the pointer
 					element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
 					
+					//FRÅGA M
 					if ( /Firefox/i.test( navigator.userAgent ) ) {
 						var fullscreenchange = function ( event ) {
 							
@@ -293,7 +295,6 @@
 				
 				// Wallbehind
 				geometry = new THREE.PlaneGeometry( 100, 30, 50);
-				//geometry.rotateY( Math.PI / 2 ); //Rotate the wall so it lays down
 				material = new THREE.MeshPhongMaterial({map: texture2});
 				wall = new THREE.Mesh( geometry, material );
 				wall.position.set(0, 15, 50);
@@ -324,15 +325,6 @@
                 door.material.side = THREE.DoubleSide;
 				
 				
-				// cube
-				/*geometry = new THREE.BoxGeometry( 20, 20, 20 );
-				material = new THREE.MeshPhongMaterial( {map: texture});
-				var objectMesh = new THREE.Mesh( geometry, material );
-				objectMesh.material.side = THREE.DoubleSide;
-				
-				objectMesh.position.y = 10;
-				objectMesh.position.z = -20;*/
-				
 				//-----------------------------------Bord------------------------------------------------------------------------
 				var loader = new THREE.ObjectLoader();
 
@@ -345,7 +337,7 @@
 				});
                 
                 //-----------------------------------Säng------------------------------------------------------------------------
-                /*var loader2 = new THREE.ObjectLoader();
+                var loader2 = new THREE.ObjectLoader();
                 
                 loader2.load('objects/bed/bed.json', function(object){
                              object.scale.set(7,7,10);
@@ -353,11 +345,11 @@
                              object.position.set(-20,5,0)
                              bed = object;
                              scene.add(object);
-                });*/
+                });
                 
                 //-----------------------------------tron------------------------------------------------------------------------
                 
-                var loader3 = new THREE.ObjectLoader();
+                /*var loader3 = new THREE.ObjectLoader();
                 
                 loader3.load('objects/tron.json', function(object){
                              object.scale.set(2,2,2);
@@ -365,7 +357,7 @@
                              object.position.set(0,-0.1,20)
                              tron = object;
                              scene.add(object);
-                             });
+                             });*/
 
 				
 				//En osynlig box runt bordet, för att göra det interaktivt
@@ -381,7 +373,6 @@
 				//ge den samma position som bordet, borde dock använda "scengrafen" istället, så att man enkelt kan göra
 				//alla translationer etc. för både objektet och dess hitbox
 				tableHitbox.position.set(44,5,-14);
-				//tableHitbox.position.x = -30;
 				scene.add(tableHitbox);
 				
 				interactiveThings[0] = tableHitbox;
@@ -410,8 +401,8 @@
 				Room.add(wall3);
 				Room.add(wall4);
                 Room.add(door);
-				sceneRoot.add(lightTrans);
-				lightTrans.add(light1);
+				//sceneRoot.add(lightTrans);
+				//lightTrans.add(light1);
 				sceneRoot.add(light2);
 				Room.add(floor);
 				Room.add(roof);
@@ -420,7 +411,8 @@
 				//add objects to list to test intersections
 				objects.push(wall);
 				objects.push(wall2);
-				//objects.push(objectMesh); //BOX
+				objects.push(wall3);
+				objects.push(wall4);
 				objects.push(tableHitbox);
 				
 				//
@@ -432,9 +424,10 @@
 				document.body.appendChild( renderer.domElement );
 				//
 				window.addEventListener( 'resize', onWindowResize, false );
+				
 				//för den interaktiva funktionen
 				document.addEventListener( 'mousedown', onDocumentMouseDown, false);
-				renderer.autoClear = false;
+				renderer.autoClear = false; //så att 2D-scenen som är svart inte syns
 				
 			}
 			
@@ -455,7 +448,7 @@
 			//Interaktiva funtionen
 			function onDocumentMouseDown(event) {
 				
-				console.log("funktionen körs");
+				//console.log("funktionen körs");
 				event.preventDefault();
 
 				//skjut en stråle från kamerans position i kamernas riktning
@@ -466,7 +459,7 @@
 				//Kollar om strålen har träffat något
 				if ( intersects.length > 0 ) {
 					
-					console.log("Du har tryckt på något som är interaktivt");
+					//console.log("Du har tryckt på något som är interaktivt");
 					
 					//Kollar om det är objeketet som heter table
 					//i geometry finns en property som heter name, som är tom som default
@@ -491,8 +484,8 @@
 
 					velocity.y = 0; // 100.0 = mass
 				
-					var time = performance.now();
-					var delta = ( time - prevTime ) / 1000;
+					//var time = performance.now();
+					//var delta = ( time - prevTime ) / 1000;
 					
 					//Allow character to decelerate/accelerate for more smooth movement
 					velocity.x -= velocity.x * 10.0 * delta;
@@ -516,7 +509,7 @@
 
 						if( intersections.length > 0 && intersections[0].distance < 4 )
 						{
-							console.log("Hit");
+							//console.log("Hit");
 							controls.getObject().translateX( -velocity.x * delta );
 							controls.getObject().translateZ( -velocity.z * delta );
 						}
