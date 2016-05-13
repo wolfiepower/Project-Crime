@@ -4,6 +4,7 @@
 		<title>three.js - pointerlock controls</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="lockstyle.css">
 		<style>
 		
 			html, body {
@@ -46,6 +47,7 @@
 	<body>
 		<script src="three.js"></script>
 		<script src="PointerLockControls.js"></script>
+		<script src="lock.js"></script>
 
 		<div id="blocker">
 
@@ -55,6 +57,25 @@
 			</div>
 
 		</div>
+
+
+		<div id="blocker2">
+
+			<div id="lock-plate">
+				<span></span><span></span><span></span><span></span>
+				<div id="lock-wrapper">
+					<div class="welcome-message">You're free!</div>
+					<div class="lock-dial" id="dial-one"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+					<div class="lock-dial" id="dial-two"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+					<div class="lock-dial" id="dial-three"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+					<div class="lock-dial" id="dial-four"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+					<div class="lock-dial" id="dial-five"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+				</div>
+			</div>
+
+		</div>
+
+		
 
 		<script>
 			
@@ -72,6 +93,7 @@
 			var directions = []; //alla strålar, 6 st
 			var rays;
 			var blocker = document.getElementById( 'blocker' );
+			var blocker2 = document.getElementById( 'blocker2' );
 			var instructions = document.getElementById( 'instructions' );
 			
 				// Object3D nodes and Mesh nodes
@@ -85,8 +107,6 @@
 			var objectMesh;
 			var floor;
 			var crosshair;
-			var testLapp;
-			var harLapp = false;
             
             //objekt i rummet
             var bed, tron;
@@ -328,7 +348,7 @@
 				
 				
 				//-----------------------------------Bord------------------------------------------------------------------------
-				var loader = new THREE.ObjectLoader();
+				/*var loader = new THREE.ObjectLoader();
 
 				loader.load('objects/table/table.json', function(object){
 						object.scale.set(10,10,10);
@@ -336,7 +356,7 @@
 						object.position.set(49,4,-10)
 						table = object;
 						scene.add(object);
-				});
+				});*/
                 
                 //-----------------------------------Säng------------------------------------------------------------------------
                 var loader2 = new THREE.ObjectLoader();
@@ -371,6 +391,7 @@
 				//har transparent: false just nu för att man ska kunna se wireframen, ska sättas till true senare 
 				var tableHitboxMat = new THREE.MeshBasicMaterial( { transparent: false, opacity: 0 , wireframe: true} )
 				tableHitbox = new THREE.Mesh(tableHitboxGeom, tableHitboxMat);
+				tableHitbox.visible = false;
 				
 				//ge den samma position som bordet, borde dock använda "scengrafen" istället, så att man enkelt kan göra
 				//alla translationer etc. för både objektet och dess hitbox
@@ -383,7 +404,7 @@
 				var textureLoader = new THREE.TextureLoader();
 				textureLoader.load("crosshair.png", function(obj){
 				
-					var material = new THREE.SpriteMaterial({map: obj });
+					var material = new THREE.SpriteMaterial({map: obj});
 					var width = material.map.image.width;
 					var height = material.map.image.height;
 					crosshair = new THREE.Sprite(material);
@@ -458,20 +479,11 @@
 				
 				var intersects = rays.intersectObjects(interactiveThings);
 				
-				if(harLapp == true)
-				{
-					console.log("Du har tryckt ");
-					sceneOrtho.remove(testLapp);
-					sceneOrtho.add(crosshair);
-					harLapp = false;
-				}
 				//Kollar om strålen har träffat något
-				else if ( intersects.length > 0 ) {
+				if ( intersects.length > 0 ) {
 					
 					//console.log("Du har tryckt på något som är interaktivt");
 					
-					
-
 					//Kollar om det är objeketet som heter table
 					//i geometry finns en property som heter name, som är tom som default
 					if(intersects[0].object.geometry.name == "table")
@@ -479,25 +491,6 @@
 						console.log("Du har tryckt på bordets hitbox!");
 						//ta bort bordet
 						scene.remove(table);
-						
-						//få upp en lapp på skärmen
-						var textureLoader = new THREE.TextureLoader();
-						textureLoader.load("testLapp.png", function(obj){
-				
-						var material = new THREE.SpriteMaterial({map: obj });
-						var width = material.map.image.width;
-						var height = material.map.image.height;
-						testLapp = new THREE.Sprite(material);
-						testLapp.scale.set(width, height, 1);
-						
-						sceneOrtho.add(testLapp);
-						//ta bort crosshairs
-						sceneOrtho.remove(crosshair);
-						harLapp = true;
-						
-						testLapp.position.set(0,0,1);
-				});
-						
 					}
 					
 				}
