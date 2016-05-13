@@ -85,6 +85,8 @@
 			var objectMesh;
 			var floor;
 			var crosshair;
+			var testLapp;
+			var harLapp = false;
             
             //objekt i rummet
             var bed, tron;
@@ -381,7 +383,7 @@
 				var textureLoader = new THREE.TextureLoader();
 				textureLoader.load("crosshair.png", function(obj){
 				
-					var material = new THREE.SpriteMaterial({map: obj});
+					var material = new THREE.SpriteMaterial({map: obj });
 					var width = material.map.image.width;
 					var height = material.map.image.height;
 					crosshair = new THREE.Sprite(material);
@@ -456,11 +458,20 @@
 				
 				var intersects = rays.intersectObjects(interactiveThings);
 				
+				if(harLapp == true)
+				{
+					console.log("Du har tryckt ");
+					sceneOrtho.remove(testLapp);
+					sceneOrtho.add(crosshair);
+					harLapp = false;
+				}
 				//Kollar om strålen har träffat något
-				if ( intersects.length > 0 ) {
+				else if ( intersects.length > 0 ) {
 					
 					//console.log("Du har tryckt på något som är interaktivt");
 					
+					
+
 					//Kollar om det är objeketet som heter table
 					//i geometry finns en property som heter name, som är tom som default
 					if(intersects[0].object.geometry.name == "table")
@@ -468,6 +479,25 @@
 						console.log("Du har tryckt på bordets hitbox!");
 						//ta bort bordet
 						scene.remove(table);
+						
+						//få upp en lapp på skärmen
+						var textureLoader = new THREE.TextureLoader();
+						textureLoader.load("testLapp.png", function(obj){
+				
+						var material = new THREE.SpriteMaterial({map: obj });
+						var width = material.map.image.width;
+						var height = material.map.image.height;
+						testLapp = new THREE.Sprite(material);
+						testLapp.scale.set(width, height, 1);
+						
+						sceneOrtho.add(testLapp);
+						//ta bort crosshairs
+						sceneOrtho.remove(crosshair);
+						harLapp = true;
+						
+						testLapp.position.set(0,0,1);
+				});
+						
 					}
 					
 				}
