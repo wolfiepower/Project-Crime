@@ -377,40 +377,6 @@
                 "receiveShadow": true,
                 "geometry": "98CE0ABF-982E-3010-BF1D-01919C9CB4EF"
             }]
-        },{
-            "name": "SpotLight",
-            "uuid": "1B18A08F-0404-3C2E-888D-7391D0AB1E6E",
-            "matrix": [-1,0,0,0,0,0.974949,0.222428,0,0,0.222428,-0.974949,0,-0.332,0.4242,-0.8937,1],
-            "visible": true,
-            "type": "SpotLight",
-            "castShadow": true,
-            "color": 16777215,
-            "intensity": 1,
-            "distance": 0,
-            "angle": 2.0944,
-            "decayExponent": 2
-        },{
-            "name": "SpotLight1",
-            "uuid": "D3F76104-364D-3D91-80D7-FB01739E4BBE",
-            "matrix": [-1,0,0,0,0,-0.984616,0.174729,0,0,0.174729,0.984616,0,0,0,1.5774,1],
-            "visible": true,
-            "type": "SpotLight",
-            "castShadow": true,
-            "color": 16777215,
-            "intensity": 1,
-            "distance": 0,
-            "angle": 2.0944,
-            "decayExponent": 2
-        },{
-            "name": "V_Ray_Omni",
-            "uuid": "189C2C11-B383-3E31-A49E-DCF684B864D1",
-            "matrix": [-1,0,0,0,0,1,-0,0,0,-0,-1,0,0,1.3321,0.2624,1],
-            "visible": true,
-            "type": "PointLight",
-            "color": 16777215,
-            "intensity": 1,
-            "distance": 0,
-            "decayExponent": 2
         }],
         "matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
         "type": "Scene",
