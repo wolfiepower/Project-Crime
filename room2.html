@@ -4,6 +4,10 @@
 		<title>three.js - pointerlock controls</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="JQuery/jquery-ui.min.css">
+		<script src="JQuery/external/jquery/jquery.js"></script>
+		<script src="JQuery/jquery-ui.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="lockstyle.css">
 		<style>
 		
 			html, body {
@@ -17,6 +21,12 @@
 				font-family: arial;
 			}
 			#blocker {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0,0,0,0.5);
+			}
+			#lockblocker {
 				position: absolute;
 				width: 100%;
 				height: 100%;
@@ -46,7 +56,11 @@
 	<body>
 		<script src="three.js"></script>
 		<script src="PointerLockControls.js"></script>
+		<script src="lock.js"></script>
 
+		
+	
+		
 		<div id="blocker">
 
 			<div id="instructions">
@@ -55,41 +69,66 @@
 			</div>
 
 		</div>
+	<div id="lockblocker">
+
+			<div id="lock-plate">
+				<span></span><span></span><span></span><span></span>
+				<div id="lock-wrapper">
+					<div class="welcome-message">You're free!</div>
+					<div class="lock-dial" id="dial-one"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+					<div class="lock-dial" id="dial-two"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+					<div class="lock-dial" id="dial-three"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+					<div class="lock-dial" id="dial-four"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+					<div class="lock-dial" id="dial-five"><ul data-combo-num="0"><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li></ul></div>
+				</div>
+			</div>
+
+		</div>
+		
 
 		<script>
 			
 			var pi = 3.1415
 			var clock = new THREE.Clock(true);
-			var mouseX = 0, mouseY = 0;
+			//var mouseX = 0, mouseY = 0;
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 			
 			var camera, scene, renderer, container;
-			var cameraOrtho, sceneOrtho;
+			var cameraOrtho, sceneOrtho; //Skapar ny 2D-scen med ny kamera, endast pekare i denna scenen
 			var geometry, material, mesh;
 			var controls;
-			var objects = [];
-			var directions = [];
+			var objects = []; //integrerbara objekt
+			var directions = []; //alla strålar, 6 st
 			var rays;
 			var blocker = document.getElementById( 'blocker' );
+			var blocker2 = document.getElementById( 'lockblocker' );
 			var instructions = document.getElementById( 'instructions' );
 			
 				// Object3D nodes and Mesh nodes
 			var sceneRoot = new THREE.Group();	
 			var Room = new THREE.Group();
-			var wallTranslate = new THREE.Group();
-			var wallRotation = new THREE.Group();
-			var planeTranslation = new THREE.Group();
-			var planeRotation = new THREE.Group();
 			var lightTrans = new THREE.Group();
 			var objectMesh;
 			var floor;
 			var crosshair;
+			var testLapp;
+			var harLapp = false;
+			var dörrTryckt = false;
+            
+            //objekt i rummet
+            var bed, tron;
 			
 			//För det interaktiva
 			var table;
 			var tableHitbox;
-			var interactiveThings = [];
+			var doorHitbox;
+			var interactiveThings = []; //Osynliga integrerbara boxar
+			
+			//Ser till att man kan exita PointerLock
+			document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+						   
+			blocker2.style.visibility = 'hidden';
 			
 			//Check if browser supports pointer lock controls
 			var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
@@ -105,6 +144,7 @@
 						controlsEnabled = true;
 						controls.enabled = true;
 						blocker.style.display = 'none';
+			
 					} else {
 						//Disable controls
 						controls.enabled = false;
@@ -112,13 +152,15 @@
 						blocker.style.display = '-moz-box';
 						blocker.style.display = 'box';
 						instructions.style.display = '';
+			
 					}
 				};
 				//In case of error with pointer-lock-browser compability
 				var pointerlockerror = function ( event ) {
-					instructions.style.display = '';
+					instructions.style.display = 'Det funkar inte';
 				};
 				
+				//FRÅGA M
 				// Hook pointer lock state change events
 				document.addEventListener( 'pointerlockchange', pointerlockchange, false );
 				document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
@@ -134,6 +176,7 @@
 					// Ask the browser to lock the pointer
 					element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
 					
+					//FRÅGA M
 					if ( /Firefox/i.test( navigator.userAgent ) ) {
 						var fullscreenchange = function ( event ) {
 							
@@ -201,6 +244,15 @@
 						case 68: // d
 							moveRight = true;
 							break;
+						case 13: //Enter key
+						{
+							dörrTryck = true;
+							sceneOrtho.add(crosshair);
+							element.requestPointerLock();
+							blocker2.style.visibility = 'hidden';
+							break;
+						}
+							
 					}
 				};
 				
@@ -248,94 +300,135 @@
 				var light1 = new THREE.PointLight( 0xffffff, 3, 55 );
 				var light2 = new THREE.AmbientLight(0xf0f0f0, 3, 55);
 				light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xffffff } ) ) );
+                
 			
 				//Texture to floor (wood)
-				var texture1 = THREE.ImageUtils.loadTexture( 'golv.jpg', {}, function(){ renderer.render(scene, camera); } ); 
+				var texture1 = THREE.ImageUtils.loadTexture( 'textures/golv2.jpg', {}, function(){ renderer.render(scene, camera); } );
 				texture1.wrapS = THREE.RepeatWrapping; 
 				texture1.wrapT = THREE.RepeatWrapping;
-				texture1.repeat.set( 4, 4 );
+				texture1.repeat.set( 10, 10 );
 				
 				//Texture to walls
-				var texture2 = THREE.ImageUtils.loadTexture( 'bricks.jpg', {}, function(){ renderer.render(scene, camera); } ); 
+				var texture2 = THREE.ImageUtils.loadTexture( 'textures/wallpaper.jpg', {}, function(){ renderer.render(scene, camera); } );
 				texture2.wrapS = THREE.RepeatWrapping; 
 				texture2.wrapT = THREE.RepeatWrapping;
-				texture2.repeat.set( 12, 6 );
+				texture2.repeat.set( 2, 1 );
+                
+                //Texture to roof
+                var texture3 = THREE.ImageUtils.loadTexture('textures/roof.jpg', {}, function(){ renderer.render(scene, camera); } );
+                texture3.wrapS = THREE.RepeatWrapping;
+                texture3.wrapT = THREE.RepeatWrapping;
+                texture3.repeat.set( 1, 6 );
+                
+                //Texture to door
+                var textureDoor = THREE.ImageUtils.loadTexture('textures/door.jpg', {}, function(){ renderer.render(scene, camera); } );
+                textureDoor.wrapS = THREE.RepeatWrapping;
+                textureDoor.wrapT = THREE.RepeatWrapping;
+                textureDoor.repeat.set( 1, 1 );
 				
 				// floor
-				var geometry = new THREE.PlaneGeometry( 150, 150, 10);
+				var geometry = new THREE.PlaneGeometry( 100, 100, 10);
 				geometry.rotateX( - Math.PI / 2) ;
 				var material = new THREE.MeshPhongMaterial({map: texture1});	
 				floor = new THREE.Mesh( geometry, material );
 				floor.material.side = THREE.DoubleSide;
-				floor.position.set(0,0,-55);
+				floor.position.set(0,0,0);
 				
 				//Roof
+                material = new THREE.MeshPhongMaterial({map: texture3});
 				var roof = new THREE.Mesh( geometry, material );
 				roof.material.side = THREE.DoubleSide;
-				roof.position.set(0,30,-55);
+				roof.position.set(0,30,0);
 				
 				// Wallbehind
-				geometry = new THREE.PlaneGeometry( 150, 50, 10);
-				//geometry.rotateY( Math.PI / 2 ); //Rotate the wall so it lays down
+				geometry = new THREE.PlaneGeometry( 100, 30, 50);
 				material = new THREE.MeshPhongMaterial({map: texture2});
 				wall = new THREE.Mesh( geometry, material );
-				wall.position.set(0, 25, 20);
+				wall.position.set(0, 15, 50);
 				wall.material.side = THREE.DoubleSide;
 				
 				//Wallinfront
 				var wall2 = new THREE.Mesh( geometry, material);
-				wall2.position.set(0, 25, -130);
+				wall2.position.set(0, 15, -50);
 				wall2.material.side = THREE.DoubleSide;
 				
 				//Wall to the right
 				var wall3 = new THREE.Mesh( geometry, material);
-				wall3.position.set(75, 25, -55);
+				wall3.position.set(50, 15, 0);
 				wall3.material.side = THREE.DoubleSide;
 				wall3.rotateY( - Math.PI / 2);
 				
 				//Wall to the left
 				var wall4 = new THREE.Mesh( geometry, material);
-				wall4.position.set(-75, 25, -55);
+				wall4.position.set(-50, 15, 0);
 				wall4.material.side = THREE.DoubleSide;
 				wall4.rotateY( - Math.PI / 2);
+                
+                //Door-out rectangle
+                var geometry1 = new THREE.BoxGeometry(12, 25, 1);
+                material = new THREE.MeshPhongMaterial( {map: textureDoor});
+                var door = new THREE.Mesh(geometry1, material);
+                door.position.set(25,10,-49.7);
+                door.material.side = THREE.DoubleSide;
 				
-				
-				// cube
-				/*geometry = new THREE.BoxGeometry( 20, 20, 20 );
-				material = new THREE.MeshPhongMaterial( {map: texture});
-				var objectMesh = new THREE.Mesh( geometry, material );
-				objectMesh.material.side = THREE.DoubleSide;
-				
-				objectMesh.position.y = 10;
-				objectMesh.position.z = -20;*/
 				
 				//-----------------------------------Bord------------------------------------------------------------------------
 				var loader = new THREE.ObjectLoader();
 
-				loader.load('table.json', function(object){	
+				loader.load('objects/table/table.json', function(object){
 						object.scale.set(10,10,10);
-						object.position.set(20,5,1)
+                        object.rotateY(- Math.PI / 2);
+						object.position.set(49,4,-10)
 						table = object;
 						scene.add(object);
 				});
+                
+                //-----------------------------------Säng------------------------------------------------------------------------
+                var loader2 = new THREE.ObjectLoader();
+                
+                loader2.load('objects/bed/bed.json', function(object){
+                             object.scale.set(7,7,10);
+                             object.rotateY(- Math.PI);
+                             object.position.set(-20,5,0)
+                             bed = object;
+                             scene.add(object);
+                });
+                
+                //-----------------------------------tron------------------------------------------------------------------------
+                
+                /*var loader3 = new THREE.ObjectLoader();
+                
+                loader3.load('objects/tron.json', function(object){
+                             object.scale.set(2,2,2);
+                             //object.rotateY(- Math.PI);
+                             object.position.set(0,-0.1,20)
+                             tron = object;
+                             scene.add(object);
+                             });*/
+
 				
 				//En osynlig box runt bordet, för att göra det interaktivt
-				var tableHitboxGeom = new THREE.BoxGeometry( 20, 10, 10 );
+				var tableHitboxGeom = new THREE.BoxGeometry( 8, 10, 18); //y måste minst vara 10 för att ray ska funka
 				
 				//ge hitboxen ett namn så att man kan jämföra med den nere i mousedown funktionen
 				tableHitboxGeom.name = "table";
 				
 				//har transparent: false just nu för att man ska kunna se wireframen, ska sättas till true senare 
-				var tableHitboxMat = new THREE.MeshBasicMaterial( { transparent: false, opacity: 0 , wireframe: true} )
+				var tableHitboxMat = new THREE.MeshBasicMaterial( { transparent: true, opacity: 0 , wireframe: false} )
 				tableHitbox = new THREE.Mesh(tableHitboxGeom, tableHitboxMat);
+				
 				
 				//ge den samma position som bordet, borde dock använda "scengrafen" istället, så att man enkelt kan göra
 				//alla translationer etc. för både objektet och dess hitbox
-				tableHitbox.position.set(20,5,1);
-				//tableHitbox.position.x = -30;
+				tableHitbox.position.set(44,5,-14);
 				scene.add(tableHitbox);
 				
-				interactiveThings[0] = tableHitbox;
+				interactiveThings.push(tableHitbox);
+				
+				//door interaktiv 
+				door.geometry.name  = "door";
+				interactiveThings.push(door);
+				
 				
 				//---------------------------pekare---------------
 				var textureLoader = new THREE.TextureLoader();
@@ -355,13 +448,11 @@
 				//"Scen graf"
 				scene.add(sceneRoot);
 				sceneRoot.add(Room);
-				//sceneRoot.add(objectMesh); //Box
 				Room.add(wall);
 				Room.add(wall2);
 				Room.add(wall3);
 				Room.add(wall4);
-				sceneRoot.add(lightTrans);
-				lightTrans.add(light1);
+                Room.add(door);
 				sceneRoot.add(light2);
 				Room.add(floor);
 				Room.add(roof);
@@ -370,8 +461,13 @@
 				//add objects to list to test intersections
 				objects.push(wall);
 				objects.push(wall2);
-				//objects.push(objectMesh); //BOX
+				objects.push(wall3);
+				objects.push(wall4);
 				objects.push(tableHitbox);
+				objects.push(door);
+				
+				
+				
 				
 				//
 				renderer = new THREE.WebGLRenderer();
@@ -382,9 +478,10 @@
 				document.body.appendChild( renderer.domElement );
 				//
 				window.addEventListener( 'resize', onWindowResize, false );
+				
 				//för den interaktiva funktionen
 				document.addEventListener( 'mousedown', onDocumentMouseDown, false);
-				renderer.autoClear = false;
+				renderer.autoClear = false; //så att 2D-scenen som är svart inte syns
 				
 			}
 			
@@ -405,7 +502,7 @@
 			//Interaktiva funtionen
 			function onDocumentMouseDown(event) {
 				
-				console.log("funktionen körs");
+				//console.log("funktionen körs");
 				event.preventDefault();
 
 				//skjut en stråle från kamerans position i kamernas riktning
@@ -413,18 +510,72 @@
 				
 				var intersects = rays.intersectObjects(interactiveThings);
 				
-				//Kollar om strålen har träffat något
-				if ( intersects.length > 0 ) {
+				if(harLapp == true)
+				{
+					console.log("Du har tryckt");
+					sceneOrtho.remove(testLapp);
+					sceneOrtho.add(crosshair);
+					harLapp = false;
+				}
+				
+				if(dörrTryckt == true)
+				{ 
+
+					dörrTryckt = false;
+					sceneOrtho.add(crosshair);
+					controlsEnabled = true;
+					controls.enabled = true;
+					//document.exitPointerLock();
+					//element.requestPointerLock();
+				
+				}
 					
-					console.log("Du har tryckt på något som är interaktivt");
+					//Kollar om strålen har träffat något
+				else if ( intersects.length > 0 && intersects[0].distance < 15 ) {
 					
 					//Kollar om det är objeketet som heter table
 					//i geometry finns en property som heter name, som är tom som default
+					
+					if(intersects[0].object.geometry.name == "door")
+					{
+						//console.log("Du har tryckt på dörren!");
+						
+						blocker2.style.visibility = 'visible';
+						//dörrTryckt = true;
+						controls.enabled = false;
+						//controlsEnabled = false;
+						sceneOrtho.remove(crosshair);
+						document.exitPointerLock();
+						
+					}
+					
+					
 					if(intersects[0].object.geometry.name == "table")
 					{
-						console.log("Du har tryckt på bordets hitbox!");
+						//console.log("Du har tryckt på bordets hitbox!");
+						
 						//ta bort bordet
 						scene.remove(table);
+						
+						//få upp en lapp på skärmen
+						var textureLoader = new THREE.TextureLoader();
+						textureLoader.load("testLapp.png", function(obj){
+				
+						var material = new THREE.SpriteMaterial({map: obj });
+						var width = material.map.image.width;
+						var height = material.map.image.height;
+						testLapp = new THREE.Sprite(material);
+						testLapp.scale.set(width, height, 1);
+						
+						sceneOrtho.add(testLapp);
+						
+						//ta bort crosshairs, lägger till lapp 
+						sceneOrtho.remove(crosshair);
+						harLapp = true;
+						
+						testLapp.position.set(0,0,1);
+					} );
+						
 					}
 					
 				}
@@ -441,8 +592,6 @@
 
 					velocity.y = 0; // 100.0 = mass
 				
-					var time = performance.now();
-					var delta = ( time - prevTime ) / 1000;
 					
 					//Allow character to decelerate/accelerate for more smooth movement
 					velocity.x -= velocity.x * 10.0 * delta;
@@ -466,7 +615,7 @@
 
 						if( intersections.length > 0 && intersections[0].distance < 4 )
 						{
-							console.log("Hit");
+							//console.log("Hit");
 							controls.getObject().translateX( -velocity.x * delta );
 							controls.getObject().translateZ( -velocity.z * delta );
 						}
@@ -481,7 +630,7 @@
 								
 				// Set up the camera
 				lightTrans.position.x = 2;
-				lightTrans.position.y = 30;
+				lightTrans.position.y = 20;
 				
 				// Render the scene
 				renderer.render(scene, camera);
