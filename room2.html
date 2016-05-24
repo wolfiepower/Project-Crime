@@ -281,6 +281,13 @@
                 textureDoor.wrapT = THREE.RepeatWrapping;
                 textureDoor.repeat.set( 1, 1 );
 				
+				//Texture to painting
+				 var texturePainting = THREE.ImageUtils.loadTexture('textures/AlexanderHamilton.jpg', {}, function(){ renderer.render(scene, camera); } );
+                texturePainting.wrapS = THREE.RepeatWrapping;
+                texturePainting.wrapT = THREE.RepeatWrapping;
+                texturePainting.repeat.set( 1, 1 );
+				
+				
 				// floor
 				var geometry = new THREE.PlaneGeometry( 100, 100, 10);
 				geometry.rotateX( - Math.PI / 2) ;
@@ -325,6 +332,13 @@
                 var door = new THREE.Mesh(geometry1, material);
                 door.position.set(25,10,-49.7);
                 door.material.side = THREE.DoubleSide;
+				
+				//Painting
+				var painting = new THREE.BoxGeometry(12, 14, 0.2);
+                material = new THREE.MeshPhongMaterial( {map: texturePainting});
+                var paint = new THREE.Mesh(painting, material);
+                paint.position.set(30, 17, 49.7);
+                paint.material.side = THREE.DoubleSide;
 				
 				
 				//-----------------------------------Bord------------------------------------------------------------------------
@@ -443,6 +457,7 @@
 				Room.add(wall3);
 				Room.add(wall4);
                 Room.add(door);
+				Room.add(paint);
 				sceneRoot.add(lightTrans);
 				lightTrans.add(light1);
 				sceneRoot.add(light2);
